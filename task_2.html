@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASK 2</title>
+  <link rel="stylesheet" href="task.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="./assets/css/task_2.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 align-items-center">
+      <h1 class="text-lg-center my-5 border border-5 border-black bg-black text-white">TO DO LIST</h1>
+    </div>
+  </div>
+  </div>
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 align-items-center">
+        <div class="card">
+          <div class="card-body" style="background-color: lightblue;">
+            <div class="input-group mb-3">
+              <input id="input" type="text" class="form-control" placeholder="Insert items here"
+                aria-label="Add items here" aria-describedby="button-addon2">
+              <button onclick="newElement()" class="btn btn-outline-secondary text-white bg-black" type="button"
+                id="button-addon2">Add</button>
+            </div>
+            <div class="scrollbar mb-3">
+              <div class="input-group">
+                <input id="search" type="text" class="form-control" placeholder="Search items" aria-label="Search items"
+                  aria-describedby="button-addon2">
+                <button onclick="searchItem()" class="btn btn-outline-secondary text-white bg-black" type="button"
+                  id="button-addon2">Search</button>
+              </div>
+            </div>
+            <ul class="myScrollableList" id="myUL" class="p-0 rounded" style="list-style-type: none;">
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script>
+
+    let itemsArray;
+
+    window.onload = function () {
+      itemsArray = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
+      itemsArray.forEach(function (item) {
+        createListItem(item);
+      });
+    };
+
+    var val = document.getElementById("input");
+    val.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        newElement();
+      }
+    });
+
+    var search_val = document.getElementById("search");
+    search_val.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        searchItem();
+      }
+    });
+
+
+    function searchItem() {
+      var query = document.getElementById('search').value.toLowerCase();
+
+      var matchingItems = itemsArray.filter(function (item) {
+        return item.toLowerCase().includes(query);
+      });
+
+      if (matchingItems.length > 0) {
+        displayList(matchingItems);
+      } else {
+        alert('Item not found');
+        displayList(itemsArray); // Display all items if no matching items found
+      }
+    }
+
+    function displayList(items) {
+      var myUL = document.getElementById('myUL');
+      myUL.innerHTML = '';
+
+      items.forEach(function (item) {
+        var li = createListItem(item);
+        myUL.appendChild(li);
+      });
+    }
+
+    function newElement() {
+      var input = document.getElementById("input");
+      var inputValue = input.value.trim();
+
+      if (inputValue === '') {
+        alert("You must write something!");
+        return;
+      }
+
+      if (itemsArray.includes(inputValue)) {
+        alert('Item already exists');
+        return;
+      }
+
+      itemsArray.push(inputValue);
+      localStorage.setItem('items', JSON.stringify(itemsArray));
+
+      var li = createListItem(inputValue);
+      var myUL = document.getElementById('myUL');
+      myUL.appendChild(li);
+
+
+    }
+
+    function createListItem(text) {
+      var li = document.createElement("li");
+      li.className = 'myUL p-2';
+      var t = document.createTextNode(text);
+      li.appendChild(t);
+
+      var span = document.createElement("span");
+      span.className = "close float-end";
+      var deleteIcon = document.createElement('i');
+      deleteIcon.className = 'fa-regular fa-trash-can';
+      span.appendChild(deleteIcon);
+      li.appendChild(span);
+
+      input.value = "";
+
+      span.onclick = function () {
+        var div = this.parentElement;
+        var itemToRemove = div.firstChild.textContent;
+        div.style.display = "none";
+
+        var filteredArray = itemsArray.filter(function (item) {
+          return item !== itemToRemove;
+        });
+
+        localStorage.setItem('items', JSON.stringify(filteredArray));
+        itemsArray = filteredArray;
+
+      };
+
+      var editButton = document.createElement("span");
+      editButton.className = "editButton close float-end m-1 mx-2 user-select-none fa-solid fa-pen-to-square";
+      li.appendChild(editButton);
+
+      editButton.onclick = function () {
+        var listItem = this.parentElement;
+        var itemText = listItem.firstChild.textContent;
+        var editedText = prompt("Enter new item text:", itemText);
+
+        if (editedText !== null && editedText.trim() !== "") {
+          if (itemsArray.includes(editedText)) {
+            alert('Item already exists');
+            return;
+          } else {
+            listItem.firstChild.textContent = editedText;
+
+            var index = itemsArray.indexOf(itemText);
+            if (index !== -1) {
+              itemsArray[index] = editedText;
+              localStorage.setItem('items', JSON.stringify(itemsArray));
+            }
+          }
+        }
+      };
+
+      document.getElementById("myUL").appendChild(li);
+    }
+
+
+
+
+  //   let itemsArray = localStorage.getItem('items') ? JSON.parse(localStorage.getItem('items')) : [];
+
+  //   itemsArray.forEach(function (item) {
+  //     createListItem(item);
+  //   });
+
+  //   var val = document.getElementById("input");
+  //   val.addEventListener("keypress", function (event) {
+  //     if (event.key === "Enter") {
+  //       newElement();
+  //     }
+  //   });
+
+
+  //   function searchItem() {
+  //     var query = document.getElementById('search').value.toLowerCase(); // Get the search query from the input field
+
+  //     var matchingItems = itemsArray.filter(function (item) {
+  //       return item.toLowerCase().includes(query); // Check if the item contains the query (case-insensitive)
+  //     });
+
+  //     if (matchingItems.length > 0) {
+  //       displayList(matchingItems); // Display the matching items in the list
+  //     } else {
+  //       alert('Item not found');
+  //     }
+  //   }
+
+  //   function displayList(items) {
+  //     var myUL = document.getElementById('myUL');
+  //     myUL.className='myUL';
+  //     myUL.innerHTML = ''; // Clear the list
+
+  //     items.forEach(function (item) {
+  //       var li = document.createElement('li');
+  //       li.textContent = item;
+  //       myUL.appendChild(li);
+  //     });
+  //   }
+
+
+
+  //   function newElement() {
+  //     var input = document.getElementById("input");
+  //     var inputValue = input.value.trim();
+
+  //     if (inputValue === '') {
+  //       alert("You must write something!");
+  //       return;
+  //     }
+
+  //     if (itemsArray.includes(inputValue)) {
+  //       alert('Item already exists');
+  //       return;
+  //     }
+
+  //     itemsArray.push(inputValue);
+  //     localStorage.setItem('items', JSON.stringify(itemsArray));
+
+  //     createListItem(inputValue);
+
+  //     input.value = "";
+  //   }
+
+  //   function createListItem(text) {
+  //     var li = document.createElement("li");
+  //     li.className = 'myUL p-2';
+  //     var t = document.createTextNode(text);
+  //     li.appendChild(t);
+
+  //     var span = document.createElement("span");
+  //     span.className = "close float-end";
+  //     var deleteIcon = document.createElement('i');
+  //     deleteIcon.className = 'fa-regular fa-trash-can';
+  //     span.appendChild(deleteIcon);
+  //     li.appendChild(span);
+
+  //     span.onclick = function () {
+  //       var div = this.parentElement;
+  //       var itemToRemove = div.firstChild.textContent;
+  //       div.style.display = "none";
+
+  //       var filteredArray = itemsArray.filter(function (item) {
+  //         return item !== itemToRemove;
+  //       });
+
+  //       localStorage.setItem('items', JSON.stringify(filteredArray));
+  //       itemsArray = filteredArray;
+  //     };
+
+  //     var editButton = document.createElement("span");
+  //     editButton.className = "close float-end m-1 mx-2 user-select-none fa-solid fa-pen-to-square";
+  //     li.appendChild(editButton);
+
+  //     editButton.onclick = function () {
+  //       var listItem = this.parentElement;
+  //       var itemText = listItem.firstChild.textContent;
+  //       var editedText = prompt("Enter new item text:", itemText);
+
+  //       if (editedText !== null && editedText.trim() !== "") {
+  //         if (itemsArray.includes(editedText)) {
+  //           alert('Item already exists');
+  //           return;
+  //         }
+  //         else {
+  //           listItem.firstChild.textContent = editedText;
+
+  //           var index = itemsArray.indexOf(itemText);
+  //           if (index !== -1) {
+  //             itemsArray[index] = editedText;
+  //             localStorage.setItem('items', JSON.stringify(itemsArray));
+  //           }
+  //         }
+  //       }
+  //     };
+
+  //     document.getElementById("myUL").appendChild(li);
+  //   }
+  // </script>
+</body>
+
+</html>
