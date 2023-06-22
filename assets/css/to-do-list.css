@@ -1,19 +1,6 @@
 .close {
-    color: white;
-    /* background-color: darkblue;
-    border: solid;
-    margin:10px;
-    border-radius: 100% 100% 100% 100%; */
-    /* border-color: black;
-    position: absolute;
-    right: 0;
-    top: 0;
-    padding: 12px 16px 12px 16px; */
-
+    color: white;   
 }
-
-
-
 
 .myScrollableList {
     max-height: 250px;
