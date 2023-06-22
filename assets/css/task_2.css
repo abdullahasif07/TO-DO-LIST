@@ -48,7 +48,7 @@
 #myUL {
     max-height: 250px;
     overflow-y: auto;
-    margin: auto;
+    margin-left: -25px;
   }
   
 
